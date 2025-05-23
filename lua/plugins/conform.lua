@@ -4,7 +4,7 @@ return {
         event = "BufWritePre", -- uncomment for format on save
         keys = {
             { "<leader>e", ":NvimTreeToggle<cr>", desc = "Toggle NvimTree" },
-          },
+        },
         config = function()
             local options = {
                 formatters_by_ft = {
@@ -12,6 +12,7 @@ return {
                     python = { "ruff" },
                     css = { "prettier" },
                     html = { "prettier" },
+                    php = { "php-cs-fixer" },
                 },
 
                 format_on_save = {

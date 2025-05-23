@@ -2,12 +2,16 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+vim.cmd("set keymap=russian-typograph")
+vim.opt.iminsert = 0
+vim.opt.imsearch = -1
 -- some preferences
 vim.cmd("set relativenumber")
 vim.cmd("set nowrap")
 vim.cmd("set formatoptions-=t")
 vim.cmd("set guioptions+=b")
 vim.cmd("set lazyredraw")
+vim.cmd("set tabstop=4 shiftwidth=4 smarttab expandtab tabstop=8 softtabstop=0")
 vim.g.have_nerd_font = true
 vim.opt.termguicolors = true
 vim.g.loaded_netrw = 1
@@ -30,18 +34,17 @@ vim.opt.inccommand = "split"
 vim.opt.cursorline = true
 -- vim.opt.scrolloff = 999
 -- vim.opt.nostartofline = true
--- Set highlight on search, but clear on pressing <Esc> in normal mode
+vim.opt.number = true
 vim.opt.hlsearch = true
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
-
-require("ui-override")
+require("mappings.keep-eng-in-normal")
 require("mappings.init-mappings")
 require("lazy-init")
 require("mappings.post-mappings")
--- require("dadbod_completion")
+require("ui-override")
 
 -- vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
 --     -- delay update diagnostics
 --     update_in_insert = true,
 -- })
-
+--
