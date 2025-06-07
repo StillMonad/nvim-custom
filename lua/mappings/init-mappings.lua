@@ -21,8 +21,8 @@ map("i", "<C-l>", "<Esc>>>i", { noremap = true, silent = true, desc = "Move sele
 map("i", "<C-h>", "<Esc><<i", { noremap = true, silent = true, desc = "Move selected block left" })
 map("v", "<C-l>", ">gv", { noremap = true, silent = true, desc = "Move selected block right" })
 map("v", "<C-h>", "<gv", { noremap = true, silent = true, desc = "Move selected block left" })
-map("n", "<C-h>", "<<", { noremap = true, silent = true, desc = "Move selected block right" })
-map("n", "<C-l>", ">>", { noremap = true, silent = true, desc = "Move selected block left" })
+map("n", "<C-h>", "<<gv", { noremap = true, silent = true, desc = "Move selected block right" })
+map("n", "<C-l>", ">>gv", { noremap = true, silent = true, desc = "Move selected block left" })
 
 map("n", ",", "@@", { noremap = true, silent = true, desc = "Repeat previous macro" })
 

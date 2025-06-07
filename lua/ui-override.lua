@@ -1,19 +1,26 @@
 -- -- Custom UI override
-vim.opt.fillchars = {
-    vert = "│", -- alternatives ▕
-    fold = " ",
-    eob = " ", -- suppress ~ at EndOfBuffer
-    diff = "╱", -- alternatives = ⣿ ░ ─
-    msgsep = "‾",
-    foldopen = "▾",
-    foldsep = "│",
-    foldclose = "▸",
-    stlnc = " ",
-    stl = " ",
-}
+-- vim.opt.fillchars = {
+--     vert = "│", -- alternatives ▕
+--     fold = " ",
+--     eob = " ", -- suppress ~ at EndOfBuffer
+--     diff = "╱", -- alternatives = ⣿ ░ ─
+--     msgsep = "‾",
+--     foldopen = "▾",
+--     foldsep = "│",
+--     foldclose = "▸",
+--     stlnc = " ",
+--     stl = " ",
+-- }
 
 vim.cmd.colorscheme("cyberdream")
-
+vim.diagnostic.config({
+    virtual_text = false,
+    float = {
+        header = false,
+        border = "rounded",
+        focusable = true,
+    },
+})
 -- alpha-config.lua
 
 local status_ok, alpha = pcall(require, "alpha")

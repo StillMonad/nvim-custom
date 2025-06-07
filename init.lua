@@ -9,7 +9,6 @@ vim.opt.imsearch = -1
 vim.cmd("set relativenumber")
 vim.cmd("set nowrap")
 vim.cmd("set formatoptions-=t")
-vim.cmd("set guioptions+=b")
 vim.cmd("set lazyredraw")
 vim.cmd("set tabstop=4 shiftwidth=4 smarttab expandtab tabstop=8 softtabstop=0")
 vim.g.have_nerd_font = true
@@ -42,6 +41,8 @@ require("mappings.init-mappings")
 require("lazy-init")
 require("mappings.post-mappings")
 require("ui-override")
+
+vim.lsp.set_log_level("debug")
 
 -- vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
 --     -- delay update diagnostics

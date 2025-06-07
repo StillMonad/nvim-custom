@@ -5,7 +5,7 @@ return {
     config = function()
         require("cyberdream").setup({
             -- Set light or dark variant
-            variant = "default", -- use "light" for the light variant. Also accepts "auto" to set dark or light colors based on the current value of `vim.o.background`
+            variant = "auto", -- use "light" for the light variant. Also accepts "auto" to set dark or light colors based on the current value of `vim.o.background`
 
             -- Enable transparent background
             transparent = true,
@@ -17,7 +17,7 @@ return {
             borderless_pickers = false,
 
             -- Set terminal colors used in `:terminal`
-            terminal_colors = false,
+            terminal_colors = true,
 
             highlights = {
                 TelescopeBorder = { fg = "#999999", bold = true },
