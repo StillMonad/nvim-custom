@@ -20,6 +20,9 @@ return {
             terminal_colors = true,
 
             highlights = {
+                LspInfoBorder = { fg = "White" },
+                FloatBorder = { fg = "White" },
+                NormalFloat = { bg = nil },
                 TelescopeBorder = { fg = "#999999", bold = true },
                 Visual = { bg = "#999999" },
                 WinSeparator = { fg = "#999999" },

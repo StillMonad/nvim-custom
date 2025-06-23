@@ -1,18 +1,19 @@
--- -- Custom UI override
--- vim.opt.fillchars = {
---     vert = "│", -- alternatives ▕
---     fold = " ",
---     eob = " ", -- suppress ~ at EndOfBuffer
---     diff = "╱", -- alternatives = ⣿ ░ ─
---     msgsep = "‾",
---     foldopen = "▾",
---     foldsep = "│",
---     foldclose = "▸",
---     stlnc = " ",
---     stl = " ",
--- }
-
+-- Custom UI override
 vim.cmd.colorscheme("cyberdream")
+
+vim.opt.fillchars = {
+    vert = "│", -- alternatives ▕
+    fold = " ",
+    eob = " ", -- suppress ~ at EndOfBuffer
+    diff = "╱", -- alternatives = ⣿ ░ ─
+    msgsep = "‾",
+    foldopen = "▾",
+    foldsep = "│",
+    foldclose = "▸",
+    stlnc = " ",
+    stl = " ",
+}
+
 vim.diagnostic.config({
     virtual_text = false,
     float = {
@@ -23,56 +24,33 @@ vim.diagnostic.config({
 })
 -- alpha-config.lua
 
-local status_ok, alpha = pcall(require, "alpha")
+local status_ok, _ = pcall(require, "alpha")
 if not status_ok then return end
 
-local dashboard = require("alpha.themes.dashboard")
-dashboard.section.header.val = {
-    [[           _                   _               _        _          _            _             _   _        ]],
-    [[          /\ \     _          /\ \            /\ \     /\ \    _ / /\          /\ \          /\_\/\_\ _    ]],
-    [[         /  \ \   /\_\       /  \ \          /  \ \    \ \ \  /_/ / /          \ \ \        / / / / //\_\  ]],
-    [[        / /\ \ \_/ / /      / /\ \ \        / /\ \ \    \ \ \ \___\/           /\ \_\      /\ \/ \ \/ / /  ]],
-    [[       / / /\ \___/ /      / / /\ \_\      / / /\ \ \   / / /  \ \ \          / /\/_/     /  \____\__/ /   ]],
-    [[      / / /  \/____/      / /_/_ \/_/     / / /  \ \_\  \ \ \   \_\ \        / / /       / /\/________/    ]],
-    [[     / / /    / / /      / /____/\       / / /   / / /   \ \ \  / / /       / / /       / / /\/_// / /     ]],
-    [[    / / /    / / /      / /\____\/      / / /   / / /     \ \ \/ / /       / / /       / / /    / / /      ]],
-    [[   / / /    / / /      / / /______     / / /___/ / /       \ \ \/ /    ___/ / /__     / / /    / / /       ]],
-    [[  / / /    / / /      / / /_______\   / / /____\/ /         \ \  /    /\__\/_/___\    \/_/    / / /        ]],
-    [[  \/_/     \/_/       \/__________/   \/_________/           \_\/     \/_________/            \/_/         ]],
-    [[                                                                                                           ]],
-}
+--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
+-- This is the definitive fix for forcing all LSP floating windows
+-- to have a specific border style. It wraps the function that Neovim's
+-- LSP client uses to show hover docs, signature help, etc.
+--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
+local original_open_floating_preview = vim.lsp.util.open_floating_preview
+vim.lsp.util.open_floating_preview = function(contents, syntax, opts)
+    -- Merge our custom border option into any existing options.
+    opts = vim.tbl_deep_extend("force", {
+        border = "rounded",
+    }, opts or {})
+    -- Call the original function with the modified options.
+    return original_open_floating_preview(contents, syntax, opts)
+end
 
-dashboard.section.buttons.val = {
-    dashboard.button("ff", "  Find file", ":Telescope find_files <CR>"),
-    dashboard.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
-    dashboard.button("fr", "  Recently used files", ":Telescope oldfiles <CR>"),
-    dashboard.button("fw", "  Find text", ":Telescope live_grep <CR>"),
-    dashboard.button("c", "  Configuration", ":e ~/.config/nvim/nvim-custom/init.lua<CR>"),
-    dashboard.button("q", "  Quit Neovim", ":qa<CR>"),
-}
-
-local function footer() return "..." end
-
-dashboard.section.footer.val = footer()
-
-dashboard.section.footer.opts.hl = "Type"
-dashboard.section.header.opts.hl = "Include"
-dashboard.section.buttons.opts.hl = "Keyword"
-
-dashboard.opts.opts.noautocmd = true
-alpha.setup(dashboard.opts)
-
--- function SetHighlight()
---     --  make comments brighter for dark themes
---     vim.api.nvim_set_hl(0, "Comment", { italic = true, fg = "#AAAAAA"  })
---     --  make highlights brighter for bright themes
---     vim.api.nvim_set_hl(0, "Visual", { bg = "#797979" })
---     vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
---     vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
--- end
-
--- vim.api.nvim_create_autocmd({"VimEnter", "ColorScheme"}, {
---     group = vim.api.nvim_create_augroup('Color', {}),
---     pattern = "*",
---     callback = SetHighlight
--- })
+-- This autocmd will run whenever a colorscheme is loaded.
+-- It's the most reliable way to set the COLOR of the borders.
+vim.api.nvim_create_autocmd("ColorScheme", {
+    group = vim.api.nvim_create_augroup("GlobalUIHighlights", { clear = true }),
+    desc = "Set global UI highlights after colorscheme loads",
+    callback = function()
+        -- Set the border of all floating windows to white.
+        vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#FFFFFF" })
+        -- Set the color of the vertical AND horizontal lines between window splits to white.
+        vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#FFFFFF" })
+    end,
+})

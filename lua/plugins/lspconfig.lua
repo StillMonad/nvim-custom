@@ -1,13 +1,12 @@
--- lua/custom/plugins/core_dev_setup.lua
--- Minimal LSP, Formatter, and Completion setup.
--- This file is fully corrected and modernized.
+-- lua/plugins/lspconfig.lua
+-- This file contains the setup for Mason, Conform, LSP, and CMP.
 
 return {
-    -- ============== I. Mason - Tool Installer =============== --
+    -- ============== Mason - Tool Installer =============== --
     {
         "williamboman/mason.nvim",
         cmd = { "Mason", "MasonInstall", "MasonInstallAll", "MasonUpdate" },
-        opts = { -- Using opts will run mason.setup(opts)
+        opts = {
             ui = {
                 icons = {
                     package_installed = "✓",
@@ -18,16 +17,16 @@ return {
         },
     },
 
-    -- ============== II. Formatting (conform.nvim) =============== --
+    -- ============== Formatting (conform.nvim) =============== --
     {
         "stevearc/conform.nvim",
-        event = { "BufWritePre" }, -- Or "VeryLazy" or on specific filetypes
+        event = { "BufWritePre" },
         cmd = { "ConformInfo" },
         opts = {
             notify_on_error = true,
             format_on_save = {
                 timeout_ms = 500,
-                lsp_fallback = true, -- Fallback to LSP formatting if conform fails
+                lsp_fallback = true,
             },
             formatters_by_ft = {
                 lua = { "stylua" },
@@ -35,106 +34,54 @@ return {
                 sh = { "shfmt" },
             },
         },
-        init = function() -- Optional: Ensure keymap for manual formatting is set
-            vim.keymap.set(
-                { "n", "v" },
-                "<leader>cf",
-                function() require("conform").format({ async = true, lsp_fallback = true }) end,
-                { desc = "Format buffer with Conform" }
-            )
-        end,
     },
 
-    -- ============== III. LSP Configuration (mason-lspconfig & nvim-lspconfig) =============== --
-    {
-        "williamboman/mason-lspconfig.nvim",
-        dependencies = { "williamboman/mason.nvim", "neovim/nvim-lspconfig" },
-        -- This plugin is configured in the nvim-lspconfig section below.
-        -- We just need to ensure it's loaded.
-    },
-
+    -- ============== LSP Configuration (nvim-lspconfig) =============== --
     {
         "neovim/nvim-lspconfig",
         event = { "BufReadPre", "BufNewFile" },
         dependencies = {
             "williamboman/mason-lspconfig.nvim",
-            "hrsh7th/cmp-nvim-lsp", -- nvim-cmp source for LSP
+            "hrsh7th/cmp-nvim-lsp",
         },
         config = function()
-            -- Get capabilities from nvim-cmp
             local capabilities = require("cmp_nvim_lsp").default_capabilities()
-
-            --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
-            --             ROBUST ON_ATTACH VIA AUTOCMD
-            --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
-            vim.api.nvim_create_autocmd("LspAttach", {
-                group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
-                desc = "Setup buffer-local LSP keymaps",
-                callback = function(ev)
-                    local bufnr = ev.buf
-                    local function set_keymap(mode, lhs, rhs, desc)
-                        local opts = { noremap = true, silent = false, buffer = bufnr, desc = desc }
-                        vim.keymap.set(mode, lhs, rhs, opts)
-                    end
-
-                    vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
-                    set_keymap("n", "gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-                    set_keymap("n", "gd", vim.lsp.buf.definition, "[G]oto [D]efinition")
-                    set_keymap("n", "K", vim.lsp.buf.hover, "[K]eyword Hover")
-                    set_keymap("n", "gi", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
-                    set_keymap("n", "gr", vim.lsp.buf.references, "[G]oto [R]eferences")
-                    set_keymap("n", "<C-k>", vim.lsp.buf.signature_help, "[S]ignature [H]elp")
-                    set_keymap("n", "<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
-                    set_keymap("n", "<leader>cD", vim.lsp.buf.type_definition, "[T]ype [D]efinition")
-                    set_keymap("n", "<leader>cr", vim.lsp.buf.rename, "[R]e[n]ame")
-                    set_keymap("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, "[W]orkspace [A]dd Folder")
-                    set_keymap("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, "[W]orkspace [R]emove Folder")
-                    set_keymap(
-                        "n",
-                        "<leader>lwl",
-                        function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end,
-                        "[W]orkspace [L]ist Folders"
-                    )
-                    set_keymap("n", "<leader>cd", vim.diagnostic.open_float, "[L]ine [D]iagnostics")
-                    set_keymap("n", "<leader>cl", vim.diagnostic.setloclist, "[L]ocation [L]ist Diagnostics")
-                    set_keymap("n", "<leader>cn", vim.diagnostic.goto_next, "[N]ext [D]iagnostic")
-                    set_keymap("n", "<leader>cp", vim.diagnostic.goto_prev, "[P]revious [D]iagnostic")
-                    set_keymap("n", "[d", vim.diagnostic.goto_prev, "Go to Previous Diagnostic")
-                    set_keymap("n", "]d", vim.diagnostic.goto_next, "Go to Next Diagnostic")
-                end,
-            })
-
-            --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
-            --                           SERVER SETUP
-            -- This section is refactored to prevent duplicate server attachments.
-            --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
             local lspconfig = require("lspconfig")
             local mason_lspconfig = require("mason-lspconfig")
 
-            local servers = { "lua_ls", "pyright", "bashls" }
+            --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
+            --                           SERVER SETUP
+            -- This refactored setup uses mason-lspconfig's `handlers` to prevent
+            -- duplicate server attachments and ensure settings are applied correctly.
+            -- This also handles the automatic enabling of LSP servers.
+            --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
 
             mason_lspconfig.setup({
-                automatic_enable = true,
-                ensure_installed = servers,
+                -- A list of servers to ensure are installed. Mason will handle installation.
+                ensure_installed = { "lua_ls", "pyright", "bashls" },
+                -- This handler function will be called for each server that is set up.
+                -- It is the modern, robust way to configure servers.
                 handlers = {
+                    -- This is the default handler for servers that don't have a specific handler below.
+                    -- It will be called for `pyright` and `bashls`.
                     function(server_name)
                         lspconfig[server_name].setup({
                             capabilities = capabilities,
+                            -- NOTE: on_attach is handled by the global LspAttach autocmd in post-mappings.lua
                         })
                     end,
+
+                    -- This is a specific handler for `lua_ls` to apply custom settings.
                     ["lua_ls"] = function()
                         lspconfig.lua_ls.setup({
                             capabilities = capabilities,
                             settings = {
                                 Lua = {
                                     runtime = { version = "LuaJIT" },
+                                    -- This is the crucial setting that fixes the "undefined global `vim`" error.
                                     diagnostics = { globals = { "vim" } },
-                                    workspace = {
-                                        library = vim.api.nvim_get_runtime_file("", true),
-                                        checkThirdParty = false,
-                                    },
+                                    workspace = { library = vim.api.nvim_get_runtime_file("", true) },
                                     telemetry = { enable = false },
-                                    hint = { enable = true },
                                 },
                             },
                         })
@@ -144,7 +91,7 @@ return {
         end,
     },
 
-    -- ============== IV. Autocompletion (nvim-cmp) =============== --
+    -- ============== Autocompletion (nvim-cmp) =============== --
     {
         "hrsh7th/nvim-cmp",
         event = "InsertEnter",
@@ -205,9 +152,6 @@ return {
                         ellipsis_char = "...",
                     }),
                 },
-                experimental = {
-                    ghost_text = false,
-                },
                 window = {
                     completion = cmp.config.window.bordered(),
                     documentation = cmp.config.window.bordered(),
@@ -218,19 +162,7 @@ return {
         end,
     },
 
-    -- Snippet Engine
-    {
-        "L3MON4D3/LuaSnip",
-        version = "v2.*",
-        build = "make install_jsregexp",
-        dependencies = { "rafamadriz/friendly-snippets" },
-        config = function() require("luasnip.loaders.from_vscode").lazy_load() end,
-    },
-
-    -- Autopairs
-    {
-        "windwp/nvim-autopairs",
-        event = "InsertEnter",
-        config = function() require("nvim-autopairs").setup({}) end,
-    },
+    -- ============== Snippet Engine & Autopairs ============== --
+    { "L3MON4D3/LuaSnip", version = "v2.*", build = "make install_jsregexp" },
+    { "windwp/nvim-autopairs", event = "InsertEnter", config = true },
 }
