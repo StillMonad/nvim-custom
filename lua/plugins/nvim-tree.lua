@@ -13,6 +13,20 @@ return {
                 update_focused_file = {
                     enable = true,
                 },
+                renderer = {
+                    icons = {
+                        show = {
+                            file = false,
+                            folder = true,
+                            folder_arrow = true,
+                            hidden = true,
+                        },
+                        git_placement = "after",
+                    },
+                    indent_markers = {
+                        enable = true,
+                    },
+                },
             })
         end,
     },

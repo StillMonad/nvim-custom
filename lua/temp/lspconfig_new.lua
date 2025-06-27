@@ -2,6 +2,29 @@
 -- This file contains the setup for Mason, Conform, LSP, and CMP.
 
 return {
+    -- ============== Mason - Tool Installer =============== --
+    {
+        "williamboman/mason.nvim",
+        cmd = { "Mason", "MasonInstall", "MasonUpdate" },
+        opts = {
+            ensure_installed = {
+                "stylua",
+                "ruff",
+                "shfmt",
+                "prettierd",
+                "pint",
+                "taplo",
+            },
+            ui = {
+                icons = {
+                    package_installed = "✓",
+                    package_pending = "➜",
+                    package_uninstalled = "✗",
+                },
+            },
+        },
+    },
+
     -- ============== Formatting (conform.nvim) =============== --
     {
         "stevearc/conform.nvim",
@@ -40,73 +63,32 @@ return {
         end,
     },
 
-    -- ============== LSP Configuration (mason-lspconfig) =============== --
+    -- ============== LSP Configuration (nvim-lspconfig) =============== --
     {
-        "mason-org/mason-lspconfig.nvim",
-        event = "VeryLazy",
+        "neovim/nvim-lspconfig",
+        event = { "BufReadPre", "BufNewFile" },
         dependencies = {
-            {
-                "mason-org/mason.nvim",
-                opts = {
-                    ensure_installed = {
-                        "stylua",
-                        "ruff",
-                        "shfmt",
-                        "prettierd",
-                        "pint",
-                        "taplo",
-                    },
-                    ui = {
-                        icons = {
-                            package_installed = "✓",
-                            package_pending = "➜",
-                            package_uninstalled = "✗",
-                        },
-                    },
-                },
-            },
-            "neovim/nvim-lspconfig",
+            "williamboman/mason-lspconfig.nvim",
             "hrsh7th/cmp-nvim-lsp",
         },
         config = function()
-            print("LSP HANDLER STARTED")
-
+            local capabilities = require("cmp_nvim_lsp").default_capabilities()
             local lspconfig = require("lspconfig")
             local mason_lspconfig = require("mason-lspconfig")
 
-            local handlers = {
-                function(server_name) 
-                    lspconfig[server_name].setup({})
-                    print("LSP HANDLER: Setting up server -> " .. server_name)
-                end,
-
-                lua_ls = function()
-                    lspconfig.lua_ls.setup({
-                        settings = {
-                            Lua = {
-                                runtime = { version = "LuaJIT" },
-                                diagnostics = { globals = { "vim", "use", "require" } },
-                                telemetry = { enable = false },
-                            },
-                            workspace = {
-                                library = vim.api.nvim_get_runtime_file("", true),
-                            },
-                        },
-                    })
-                    print("LSP HANDLER: Applying custom settings for lua_ls!")
-                end,
-                jedi_language_server = function() end, -- Disable
-            }
-
-            require("mason").setup()
             mason_lspconfig.setup({
                 ensure_installed = {
+                    -- Python
                     "pyright",
                     "ruff",
-                    -- "jedi_language_server",
+                    "jedi_language_server",
+
+                    -- Web Development
                     "ts_ls",
                     "html",
                     "cssls",
+
+                    -- Other Languages
                     "lua_ls",
                     "bashls",
                     "intelephense",
@@ -114,7 +96,46 @@ return {
                     "yamlls",
                     "taplo",
                 },
-                handlers=handlers,
+                handlers = {
+                    function(server_name)
+                        lspconfig[server_name].setup({
+                            capabilities = capabilities,
+                        })
+                    end,
+
+                    ["lua_ls"] = function()
+                        lspconfig.lua_ls.setup({
+                            capabilities = capabilities,
+                            settings = {
+                                Lua = {
+                                    runtime = { version = "LuaJIT" },
+                                    diagnostics = { globals = { "vim" } },
+                                    telemetry = { enable = false },
+                                },
+                                workspace = {
+                                    library = {
+                                        vim.env.VIMRUNTIME,
+                                    },
+                                },
+                            },
+                        })
+                    end,
+
+                    ["ruff"] = function()
+                        lspconfig.ruff.setup({
+                            capabilities = capabilities,
+                        })
+                    end,
+                    -- Setup for Pyright: disable go-to-definition.
+                    ["pyright"] = function()
+                        local pyright_capabilities = vim.deepcopy(capabilities)
+                        pyright_capabilities.textDocument.definitionProvider = false
+
+                        lspconfig.pyright.setup({
+                            capabilities = pyright_capabilities,
+                        })
+                    end,
+                },
             })
         end,
     },

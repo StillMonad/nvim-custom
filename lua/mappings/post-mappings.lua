@@ -31,12 +31,34 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 
 --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
+--             LSP Info Autocommand
+--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
+vim.api.nvim_create_user_command('LspConfig', function()
+    print(vim.inspect(vim.lsp.get_active_clients()))
+end, { desc = "Print active LSP client configurations" })
+
+--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
+--             CONFORM FILE FORMATING
+--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
+-- vim.api.nvim_create_autocmd("BufWritePre", {
+--     pattern = "*",
+--     callback = function(args)
+--         require("conform").format({ bufnr = args.buf })
+--     end,
+-- })
+vim.keymap.set(
+    "n",
+    "<leader>cf",
+    function() require("conform").format({ async = true, lsp_fallback = true }) end,
+    { desc = "[C]ode [F]ormat" }
+)
+--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
 --             PLUGIN KEYMAPPINGS
 --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
 
 -- Barbar.nvim (Buffer/Tab management) grouped under <leader>b
-vim.keymap.set("n", "<leader>bh", "<cmd>BufferPrevious<CR>", { desc = "Previous [B]uffer" })
-vim.keymap.set("n", "<leader>bl", "<cmd>BufferNext<CR>", { desc = "Next [B]uffer" })
+vim.keymap.set("n", "<leader>h", "<cmd>BufferPrevious<CR>", { desc = "Previous [B]uffer" })
+vim.keymap.set("n", "<leader>l", "<cmd>BufferNext<CR>", { desc = "Next [B]uffer" })
 vim.keymap.set("n", "<leader>bH", "<cmd>BufferMovePrevious<CR>", { desc = "Move [B]uffer Left" })
 vim.keymap.set("n", "<leader>bL", "<cmd>BufferMoveNext<CR>", { desc = "Move [B]uffer Right" })
 vim.keymap.set("n", "<leader>bx", "<cmd>BufferClose<CR>", { desc = "Close [B]uffer" })
@@ -56,4 +78,5 @@ function _G.set_terminal_keymaps()
     vim.keymap.set("t", "<C-k>", [[<Cmd>wincmd k<CR>]], opts)
     vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], opts)
 end
+
 vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")

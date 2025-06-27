@@ -20,10 +20,8 @@ map("n", "<C-k>", "<cmd>:m .-2<CR>", { noremap = true, silent = true, desc = "Mo
 -- Indent/un-indent lines
 map("i", "<C-l>", "<Esc>>>i", { noremap = true, silent = true, desc = "Indent line" })
 map("i", "<C-h>", "<Esc><<i", { noremap = true, silent = true, desc = "Un-indent line" })
-map("v", "<C-l>", ">gv", { noremap = true, silent = true, desc = "Indent selection" })
-map("v", "<C-h>", "<gv", { noremap = true, silent = true, desc = "Un-indent selection" })
-map("n", "<C-h>", "<<", { noremap = true, silent = true, desc = "Un-indent line" })
-map("n", "<C-l>", ">>", { noremap = true, silent = true, desc = "Indent line" })
+map("v", ">", ">gv", { noremap = true, silent = true, desc = "Indent selection" })
+map("v", "<", "<gv", { noremap = true, silent = true, desc = "Un-indent selection" })
 
 -- Repeat last macro
 map("n", ",", "@@", { noremap = true, silent = true, desc = "Repeat previous macro" })
