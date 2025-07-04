@@ -1,4 +1,3 @@
 lua/.DS_Store
-disabled-plugins/
-temp/
+lua/temp/
 lua/disabled-plugins
