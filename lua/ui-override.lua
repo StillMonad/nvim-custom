@@ -4,7 +4,11 @@
 -- vim.cmd("highlight LineNr guifg=#f6b26b")
 -- vim.cmd("highlight BufferDefaultInactive guifg=#ffffff")
 -- vim.cmd.colorscheme("rose-pine-moon")
+
 vim.cmd("highlight Visual guibg=#561ff8")
+vim.cmd("highlight CurSearch guibg=#8862fa guifg=#ffffff")
+vim.cmd("highlight Search guibg=#3c15ad")
+vim.cmd("highlight CursorLine guibg=#2b0f7c")
 
 
 vim.opt.fillchars = {
@@ -38,10 +42,19 @@ if not status_ok then return end
 -- vim.cmd("highlight MiniStatusLineFilename guibg=#3b3b3b")
 -- vim.cmd("highlight StatusLineNC guibg=#3b3b3b")
 
+
 --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
--- This is the definitive fix for forcing all LSP floating windows
--- to have a specific border style. It wraps the function that Neovim's
--- LSP client uses to show hover docs, signature help, etc.
+-- Highlight yanked text
+--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
+vim.api.nvim_create_autocmd("TextYankPost", {
+    group = vim.api.nvim_create_augroup("highlight_yank", { clear = true }),
+    desc = "Highlight selection on yank",
+    pattern = "*",
+    callback = function() vim.highlight.on_yank({ higroup = "IncSearch", timeout = 200 }) end,
+})
+
+--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
+-- Force lsp popups to have rounded borders
 --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
 local original_open_floating_preview = vim.lsp.util.open_floating_preview
 vim.lsp.util.open_floating_preview = function(contents, syntax, opts)

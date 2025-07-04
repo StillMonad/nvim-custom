@@ -11,7 +11,7 @@ return {
             require("conform").setup({
                 notify_on_error = true,
 
-                -- uncomment for enabling auto-fomat on save
+                -- auto-fomat on save
                 -- format_on_save = {
                 --     lsp_fallback = true,
                 --     timeout_ms = 500,
@@ -23,7 +23,6 @@ return {
                     sh = { "shfmt" },
                     php = { "pint" },
                     toml = { "taplo" },
-                    -- web
                     javascript = { "prettierd" },
                     typescript = { "prettierd" },
                     javascriptreact = { "prettierd" },
@@ -69,41 +68,19 @@ return {
             "hrsh7th/cmp-nvim-lsp",
         },
         config = function()
-            print("LSP HANDLER STARTED")
-
-            local lspconfig = require("lspconfig")
             local mason_lspconfig = require("mason-lspconfig")
-
-            local handlers = {
-                function(server_name) 
-                    lspconfig[server_name].setup({})
-                    print("LSP HANDLER: Setting up server -> " .. server_name)
-                end,
-
-                lua_ls = function()
-                    lspconfig.lua_ls.setup({
-                        settings = {
-                            Lua = {
-                                runtime = { version = "LuaJIT" },
-                                diagnostics = { globals = { "vim", "use", "require" } },
-                                telemetry = { enable = false },
-                            },
-                            workspace = {
-                                library = vim.api.nvim_get_runtime_file("", true),
-                            },
-                        },
-                    })
-                    print("LSP HANDLER: Applying custom settings for lua_ls!")
-                end,
-                jedi_language_server = function() end, -- Disable
-            }
 
             require("mason").setup()
             mason_lspconfig.setup({
+                automatic_enable = {
+                    exclude = {
+                        "jedi_language_server",
+                    }
+                },
                 ensure_installed = {
                     "pyright",
                     "ruff",
-                    -- "jedi_language_server",
+                    "jedi_language_server",
                     "ts_ls",
                     "html",
                     "cssls",
@@ -114,8 +91,19 @@ return {
                     "yamlls",
                     "taplo",
                 },
-                handlers=handlers,
+                handlers = handlers,
             })
+        end,
+    },
+
+    -- ======= lsp-servers settings (nvim-lspconfig) ========== --
+    {
+        "neovim/nvim-lspconfig",
+        config = function()
+            vim.lsp.config("lua_ls", require("configs.lua_ls"))
+            vim.lsp.config("pyright", require("configs.pyright"))
+            vim.lsp.config("ruff", require("configs.ruff"))
+            -- vim.lsp.config("jedi_language_server", require("configs.jedi_language_server"))
         end,
     },
 

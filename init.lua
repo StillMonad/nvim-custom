@@ -28,7 +28,7 @@ vim.opt.splitbelow = true
 vim.opt.list = true
 vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 vim.opt.inccommand = "split"
-vim.opt.cursorline = false
+vim.opt.cursorline = true
 -- vim.opt.scrolloff = 999
 -- vim.opt.nostartofline = true
 vim.opt.number = true
@@ -53,6 +53,7 @@ require("mappings.init-mappings")
 require("lazy-init")
 require("mappings.post-mappings")
 require("ui-override")
+-- require("misc.telescope_multigrep").setup()
 
 vim.lsp.set_log_level("info")
 vim.o.winborder = 'rounded'

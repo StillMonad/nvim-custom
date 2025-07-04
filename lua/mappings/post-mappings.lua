@@ -80,3 +80,7 @@ function _G.set_terminal_keymaps()
 end
 
 vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
+
+-- Toggle hidden characters
+require("misc.show_hidden_chars")
+vim.keymap.set("n", "<leader>th", toggle_hidden_chars,{ desc = "[T]oggle [H]idden characters"})
