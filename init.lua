@@ -15,7 +15,7 @@ vim.g.have_nerd_font = true
 vim.opt.termguicolors = true
 vim.opt.mouse = "a"
 vim.opt.showmode = false
-vim.opt.clipboard = "unnamedplus"
+-- vim.opt.clipboard = "unnamedplus"
 vim.opt.breakindent = true
 vim.opt.undofile = true
 vim.opt.ignorecase = true
@@ -53,7 +53,7 @@ require("mappings.init-mappings")
 require("lazy-init")
 require("mappings.post-mappings")
 require("ui-override")
--- require("misc.telescope_multigrep").setup()
+require("misc.telescope_multigrep").setup()
 
 vim.lsp.set_log_level("info")
 vim.o.winborder = 'rounded'

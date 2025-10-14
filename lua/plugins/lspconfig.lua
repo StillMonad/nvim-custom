@@ -70,12 +70,15 @@ return {
         config = function()
             local mason_lspconfig = require("mason-lspconfig")
 
+            -- setup mason (formatters and tools)
             require("mason").setup()
+
+            -- setup mason-lspconfig for LSPs only
             mason_lspconfig.setup({
                 automatic_enable = {
                     exclude = {
                         "jedi_language_server",
-                    }
+                    },
                 },
                 ensure_installed = {
                     "pyright",
@@ -91,7 +94,7 @@ return {
                     "yamlls",
                     "taplo",
                 },
-                handlers = handlers,
+                -- handlers = handlers,
             })
         end,
     },
@@ -122,6 +125,7 @@ return {
         },
         config = function()
             local cmp = require("cmp")
+            local compare = cmp.config.compare
             local luasnip = require("luasnip")
             local lspkind = require("lspkind")
             local cmp_autopairs = require("nvim-autopairs.completion.cmp")
@@ -133,7 +137,7 @@ return {
                 mapping = cmp.mapping.preset.insert({
                     ["<C-k>"] = cmp.mapping.select_prev_item(),
                     ["<C-j>"] = cmp.mapping.select_next_item(),
-                    ["<C-Space>"] = cmp.mapping.complete(),
+                    -- ["<C-Space>"] = cmp.mapping.complete(),
                     ["<C-e>"] = cmp.mapping.abort(),
                     ["<CR>"] = cmp.mapping.confirm({ select = true }),
                     ["<Tab>"] = cmp.mapping(function(fallback)
@@ -160,6 +164,7 @@ return {
                     { name = "luasnip" },
                     { name = "buffer" },
                     { name = "path" },
+                    { name = "minuet" },
                 }),
                 formatting = {
                     format = lspkind.cmp_format({
@@ -171,6 +176,26 @@ return {
                 window = {
                     completion = cmp.config.window.bordered(),
                     documentation = cmp.config.window.bordered(),
+                },
+                sorting = {
+                    priority_weight = 2,
+                    comparators = {
+                        -- highest relevance first
+                        compare.exact, -- exact prefix matches
+                        compare.score, -- fuzzy score from matcher
+                        compare.recently_used, -- what you picked recently
+                        -- optional preferences
+                        function(e1, e2) -- prefer LSP entries over snippets (tweak to taste)
+                            local a, b = e1.source.name, e2.source.name
+                            if a ~= b then
+                                if a == "nvim_lsp" then return true end
+                                if b == "nvim_lsp" then return false end
+                            end
+                        end,
+                        compare.kind, -- e.g., prefer variables over text
+                        compare.length, -- shorter labels first
+                        compare.order, -- stable final tie-breaker
+                    },
                 },
             })
 

@@ -1,5 +1,3 @@
--- ~/.config/nvim/init.lua
-
 -- --- Configuration ---
 -- IMPORTANT: Replace "com.apple.keylayout.US" with your actual English layout ID
 local english_layout_id = "com.apple.keylayout.ABC" -- <-- REPLACE THIS!

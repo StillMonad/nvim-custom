@@ -33,9 +33,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
 --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
 --             LSP Info Autocommand
 --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
-vim.api.nvim_create_user_command('LspConfig', function()
-    print(vim.inspect(vim.lsp.get_active_clients()))
-end, { desc = "Print active LSP client configurations" })
+vim.api.nvim_create_user_command(
+    "LspConfig",
+    function() print(vim.inspect(vim.lsp.get_active_clients())) end,
+    { desc = "Print active LSP client configurations" }
+)
 
 --=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--
 --             CONFORM FILE FORMATING
@@ -79,8 +81,33 @@ function _G.set_terminal_keymaps()
     vim.keymap.set("t", "<C-l>", [[<Cmd>wincmd l<CR>]], opts)
 end
 
+-- Spectre keymaps
+vim.keymap.set("n", "<leader>S", '<cmd>lua require("spectre").toggle()<CR>', {
+    desc = "Toggle Spectre",
+})
+vim.keymap.set("n", "<leader>sw", '<cmd>lua require("spectre").open_visual({select_word=true})<CR>', {
+    desc = "Search current word",
+})
+vim.keymap.set("v", "<leader>sw", '<esc><cmd>lua require("spectre").open_visual()<CR>', {
+    desc = "Search current word",
+})
+vim.keymap.set("n", "<leader>sp", '<cmd>lua require("spectre").open_file_search({select_word=true})<CR>', {
+    desc = "Search on current file",
+})
+
 vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
 
 -- Toggle hidden characters
 require("misc.show_hidden_chars")
-vim.keymap.set("n", "<leader>th", toggle_hidden_chars,{ desc = "[T]oggle [H]idden characters"})
+vim.keymap.set("n", "<leader>th", toggle_hidden_chars, { desc = "[T]oggle [H]idden characters" })
+
+-- Toggle quickfix / loclist
+vim.keymap.set("n", "<leader>q", function() require("quicker").toggle() end, { desc = "Toggle quickfix" })
+vim.keymap.set( "n", "<leader>l", function() require("quicker").toggle({ loclist = true }) end, { desc = "Toggle loclist" })
+
+-- Wipe registers command
+vim.api.nvim_create_user_command("WipeReg", function()
+  for i = 34, 122 do
+    pcall(vim.fn.setreg, string.char(i), {})
+  end
+end, { desc = "Wipe all registers safely" })
