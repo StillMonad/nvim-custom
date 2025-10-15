@@ -17,7 +17,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
         set_keymap("n", "K", vim.lsp.buf.hover, "[K]eyword Hover")
         set_keymap("n", "gi", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
         set_keymap("n", "gr", vim.lsp.buf.references, "[G]oto [R]eferences")
-        set_keymap("n", "<C-k>", vim.lsp.buf.signature_help, "[S]ignature [H]elp")
+        set_keymap("n", "<leader>K", vim.lsp.buf.signature_help, "[S]ignature [H]elp")
 
         -- Mappings grouped under <leader>c for "Code"
         set_keymap("n", "<leader>ca", vim.lsp.buf.code_action, "[A]ction")
